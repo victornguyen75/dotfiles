@@ -12,7 +12,7 @@ Then, go **_way_** beyond 100 seconds by taking the full course on Udemy, [**_Do
 
 2. Clone repo into a new hidden directory with Git Bash, Command Prompt, or Powershell.
 
-```zsh
+```bash
 # Use SSH (if set up)...
 git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
 
@@ -22,7 +22,7 @@ git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 
 3. Create symlinks in the Home directory to the real files in the repo.
 
-```zsh
+```bash
 # There are better and less manual ways to do this;
 # investigate install scripts and bootstrapping tools.
 
@@ -30,17 +30,62 @@ ln -s ~/.dotfiles/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ```
 
+4. Install Linux Subsystem (If you want Fish)
+
+There are many ways to install WLS. I'll show the easiest.
+
+```
+1. Firstly, launch Settings
+2. Then, tap on Applications.
+3. After that, tap the ‘Programs and Features’ option. It shall be located under the ‘Related settings’ part.
+4. Next, tap on a ‘Turn Windows features on or off’ tab.
+5. Then, put a tick on the Windows Subsystem for Linux square.
+6. After that, tap on the OK option.
+7. Lastly, tap on the Restart now option.
+8. Run Bash on Windows
+9. Open a command prompt (CMD). Type “cmd” in the start.
+10. Type bash and hit enter.
+11. You will be prompt to accept the license. just type y and hit enter.
+12. After you have accepted the License, the Ubuntu user-mode image will be downloaded and a “Bash on Ubuntu on Windows” shortcut will be added to your start menu.
+13. To launch Bash on Windows, either run bash at a cmd/PowerShell command-prompt, or use the start menu shortcut.
+```
+
+5. Install Fish (the Friendly-Interactive Shell)
+
+```bash
+# Install fish repository
+$ sudo apt-add-repository ppa:fish-shell/release-3
+
+# Update and upgrade repository
+$ sudo apt-get update && sudo apt-get upgrade
+
+# Install fish shell
+$ sudo apt-get install fish
+```
+
+6. Install OMF (Oh My Fish)
+
+```
+curl -L https://get.oh-my.fish | fish
+
+# This plugin allows Fish to work with NVM
+omf install nvm
+
+# Sets the NVM directory
+set -gx NVM_DIR (brew --prefix nvm)
+```
+
 ## Steps to bootstrap a new Mac
 
 1. Install Apple's Command Line Tools, which are prerequisites for Git and Homebrew.
 
-```zsh
+```bash
 xcode-select --install
 ```
 
 2. Clone repo into new hidden directory.
 
-```zsh
+```bash
 # Use SSH (if set up)...
 git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
 
@@ -50,7 +95,7 @@ git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 
 3. Create symlinks in the Home directory to the real files in the repo.
 
-```zsh
+```bash
 # There are better and less manual ways to do this;
 # investigate install scripts and bootstrapping tools.
 
@@ -60,7 +105,7 @@ ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 
 4. Install Homebrew, followed by the software listed in the Brewfile.
 
-```zsh
+```bash
 # These could also be in an install script.
 
 # Install Homebrew
