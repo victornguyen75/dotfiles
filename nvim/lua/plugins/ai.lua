@@ -4,7 +4,6 @@
 -- - `ai.copilot-chat` gives a CopilotChat.nvim panel (<leader>aa to toggle,
 --   <leader>aq for a quick one-off prompt) using the same GitHub Copilot
 --   subscription/auth.
-return {
-  { import = "lazyvim.plugins.extras.ai.copilot-native" },
-  { import = "lazyvim.plugins.extras.ai.copilot-chat" },
-}
+-- Extras are imported in config/lazy.lua (must precede `{ import = "plugins" }`
+-- per LazyVim's import-order check), so nothing to add here currently.
+return {}
