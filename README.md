@@ -167,6 +167,10 @@ set -gx NVM_DIR (brew --prefix nvm)
 Victor's stack for a fully terminal-based dev workflow, running alongside VSCode
 during a gradual migration. fish stays the shell in every layer.
 
+> **Using this workflow day-to-day?** See [`WORKFLOW.md`](./WORKFLOW.md) for
+> keybindings, the daily `tm` entry point, and how the migration is meant to go —
+> this section below only covers first-time bootstrap.
+
 1. Install the CLI tools via Homebrew.
 
 ```bash

@@ -12,6 +12,7 @@ fish/secrets.fish
 # nvim/lua config via `:Lazy sync` / `:Mason`.
 nvim/.luarc.json
 nvim/lazy-lock.json.bak
+nvim/lazyvim.json
 
 # OS cruft
 .DS_Store
