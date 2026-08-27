@@ -162,6 +162,67 @@ set -gx NVM_DIR (brew --prefix nvm)
 - Python (ms-python.python)
 - vscode-styled-component (jpoissonnier.vscode-styled-components)
 
+## Terminal-only workflow: WezTerm + tmux + Neovim (LazyVim)
+
+Victor's stack for a fully terminal-based dev workflow, running alongside VSCode
+during a gradual migration. fish stays the shell in every layer.
+
+1. Install the CLI tools via Homebrew.
+
+```bash
+brew install neovim tmux wezterm ripgrep fd fzf lazygit bat
+brew install --cask font-jetbrains-mono-nerd-font
+```
+
+2. Symlink the configs from this repo into `$HOME`.
+
+```bash
+ln -s ~/.dotfiles/.wezterm.lua ~/.wezterm.lua
+ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
+ln -s ~/.dotfiles/nvim ~/.config/nvim
+ln -s ~/.dotfiles/fish ~/.config/fish
+```
+
+3. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and the
+   tmux plugins (true-color Catppuccin theme, `vim-tmux-navigator` for seamless
+   tmux/nvim pane navigation, `tmux-resurrect`/`tmux-continuum` for session
+   persistence across reboots).
+
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
+```
+
+4. Launch `nvim` once to let `lazy.nvim` bootstrap LazyVim and install plugins, LSP
+   servers, and formatters (TypeScript/`vtsls`, YAML/`yaml-language-server`,
+   Docker/`dockerfile-language-server` + `docker-compose-language-service`,
+   `prettier`, `eslint-lsp`, plus the `copilot-language-server` for AI assistance).
+   Run `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth
+   (same subscription as VSCode's Copilot Chat).
+
+```bash
+nvim
+```
+
+5. **Secrets**: never store tokens/keys directly in tracked shell files. Inline
+   secrets are extracted into untracked, gitignored files —
+   `~/.config/fish/secrets.fish` (sourced by `fish/config.fish`) and `~/.secrets.env`
+   (sourced by `.bashrc`/`.bash_profile`) — and fish's `fish_variables` (universal
+   vars) is gitignored entirely since it can contain exported secrets. Recreate
+   these locally on any new machine; they are intentionally not part of this repo.
+
+6. **Corporate proxy note**: if you're behind a TLS-intercepting corporate proxy
+   (e.g. Zscaler) whose root CA is trusted by macOS but not by Node's bundled CA
+   store, `npm`/Mason LSP installs will fail with
+   `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`. `NODE_OPTIONS=--use-system-ca` (set in both
+   `fish/config.fish` and `.bashrc`) tells Node (>=22) to trust the same CA store as
+   the rest of macOS.
+
+7. Convenience: the `tm` fish function (`fish/functions/tm.fish`) attaches to an
+   existing tmux session named after the current directory, or creates one if it
+   doesn't exist yet — run it from any project directory to get a persistent,
+   detachable session.
+
 ## TODO List for Windows Configurations
 
 - Learn how to install scripts and bootstrapping tools for windows
