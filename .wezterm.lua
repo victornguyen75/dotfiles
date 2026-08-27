@@ -26,6 +26,28 @@ config.default_prog = { "/opt/homebrew/bin/fish", "-l" }
 config.window_decorations = "RESIZE"
 config.window_close_confirmation = "NeverPrompt"
 
+-- Default window size (in terminal cells, not pixels)
+config.initial_cols = 240
+config.initial_rows = 60
+
+-- Resize the window to a percentage of the active screen's resolution on
+-- startup, and center it. This keeps window sizing consistent across
+-- different monitors/resolutions rather than relying on a fixed cell count.
+wezterm.on("gui-startup", function(cmd)
+  local screen = wezterm.gui.screens().active
+  local width_frac, height_frac = 0.8, 0.8
+  local width = screen.width * width_frac
+  local height = screen.height * height_frac
+
+  local tab, pane, window = wezterm.mux.spawn_window(cmd or {})
+  local gui_window = window:gui_window()
+  gui_window:set_inner_size(width, height)
+  gui_window:set_position(
+    screen.x + (screen.width - width) / 2,
+    screen.y + (screen.height - height) / 2
+  )
+end)
+
 -- Slightly larger scrollback since tmux will also manage its own history per pane.
 config.scrollback_lines = 10000
 
