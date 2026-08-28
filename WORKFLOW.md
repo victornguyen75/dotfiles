@@ -52,6 +52,15 @@ new/different session. This is your "open project" replacement for VSCode's
 - `space ff` → fuzzy find files (Cmd+P equivalent)
 - `space sg` → grep across the whole project
 - `space ,` or `space bb` → switch buffers
+- `space bd` → close the current buffer (keeps the split open)
+- `space bD` → close the current buffer and its split
+- `space bo` → close every other buffer
+- `:bd!` → force-close the current buffer without saving changes
+- `[b` / `]b` → previous / next buffer
+- `Ctrl-s` → save the current file
+- `:q` → quit the current window
+- `space -` / `space |` → split below / to the right
+- `space wd` → close the current split
 - `gd` → go to definition
 - `K` → hover docs
 - `space ca` → code actions
