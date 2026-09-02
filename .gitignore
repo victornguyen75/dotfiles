@@ -1,0 +1,18 @@
+# Never commit secrets or local machine-specific state.
+
+# Fish: universal variables can contain exported secrets (tokens/keys); the
+# untracked secrets.fish holds any inline secrets sourced by config.fish.
+fish/fish_variables
+fish/secrets.fish
+
+# Shared secrets file sourced by bash/zsh configs (see .bashrc / .bash_profile)
+.secrets.env
+
+# Neovim: plugin/LSP/Mason state is machine-specific and reproducible from
+# nvim/lua config via `:Lazy sync` / `:Mason`.
+nvim/.luarc.json
+nvim/lazy-lock.json.bak
+nvim/lazyvim.json
+
+# OS cruft
+.DS_Store

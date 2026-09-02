@@ -1,19 +1,3 @@
-# For MacOS users only
-PROMPT='
-Beyond Dotfiles in 100 Seconds:
-%1~ %# '
-
-
-
-# There are many other ways to customize your shell:
-# - Set variables
-# - Create aliases
-# - Customize the prompt
-# - Write handy functions
-# - Change ZSH options
-# - Adjust history functionality
-# - Improve line editor (completions, menu, navigation, etc.)
-# - Add locations to $PATH variable (or $path array)
-# - Use ZSH plugins
-# - Change key bindings
-# - Add "zstyles" for completions & more
+# zsh is not Victor's primary shell (fish is — see fish/), so this file is
+# intentionally minimal. Kept for any tooling that still spawns zsh
+# non-interactively. See .zprofile / .zshenv for the real, active zsh config.
