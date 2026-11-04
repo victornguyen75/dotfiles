@@ -5,6 +5,11 @@
 fish/fish_variables
 fish/secrets.fish
 
+# Fish plugins from fisher
+fish/functions/
+fish/completions/
+fish/conf.d/
+
 # Shared secrets file sourced by bash/zsh configs (see .bashrc / .bash_profile)
 .secrets.env
 
