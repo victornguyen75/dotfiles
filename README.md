@@ -85,7 +85,7 @@ bootstrap path and [`WORKFLOW.md`](./WORKFLOW.md) as the day-to-day usage guide.
 xcode-select --install
 ```
 
-1. Clone the repo into a hidden home-directory checkout.
+2. Clone the repo into a hidden home-directory checkout.
 
 ```bash
 # Use SSH (if set up)...
@@ -95,7 +95,7 @@ git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
-1. Install Homebrew, then use the repo's `Brewfile` as the default package source.
+3. Install Homebrew, then use the repo's `Brewfile` as the default package source.
 
 ```bash
 # Install Homebrew
@@ -108,7 +108,7 @@ brew bundle --file ~/.dotfiles/Brewfile
 cd ~/.dotfiles && brew bundle
 ```
 
-1. Symlink the repo-managed config into `$HOME` and `~/.config`.
+4. Symlink the repo-managed config into `$HOME` and `~/.config`.
 
 ```bash
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
@@ -121,21 +121,21 @@ ln -s ~/.dotfiles/fish ~/.config/fish
 
 > Before symlinking, back up any existing local files instead of overwriting them blindly.
 
-1. Install any terminal-workflow packages that are not already covered by the `Brewfile`.
+5. Install any terminal-workflow packages that are not already covered by the `Brewfile`.
 
 ```bash
 brew install neovim tmux wezterm ripgrep fd fzf lazygit bat fish nvm
 brew install --cask font-jetbrains-mono-nerd-font
 ```
 
-1. Make fish the default shell.
+6. Make fish the default shell.
 
 ```bash
 which fish
 chsh -s "$(which fish)"
 ```
 
-1. Install OMF (Oh My Fish) and fish-side NVM integration if you want the same plugin workflow used elsewhere in this repo.
+7. Install OMF (Oh My Fish) and fish-side NVM integration if you want the same plugin workflow used elsewhere in this repo.
 
 ```bash
 curl -L https://get.oh-my.fish | fish
@@ -147,14 +147,14 @@ omf install nvm
 set -gx NVM_DIR (brew --prefix nvm)
 ```
 
-1. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
+8. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
 
 ```bash
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
 ```
 
-1. Launch `nvim` once to let LazyVim / `lazy.nvim` install plugins, LSP servers, and formatters.
+9. Launch `nvim` once to let LazyVim / `lazy.nvim` install plugins, LSP servers, and formatters.
 
 ```bash
 nvim
@@ -162,7 +162,7 @@ nvim
 
 Then run `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth.
 
- 1. Restore local-only secrets manually. Do **not** put them in tracked files.
+ 10. Restore local-only secrets manually. Do **not** put them in tracked files.
 
 Recreate these locally as needed:
 
@@ -171,7 +171,7 @@ Recreate these locally as needed:
 - any machine-specific SSH, npm, GitHub, or cloud credentials
 - fish universal variables / `fish_variables`
 
- 1. Validate the setup.
+ 11. Validate the setup.
 
 ```bash
 git --version
