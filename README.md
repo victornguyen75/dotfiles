@@ -12,31 +12,35 @@ Then, go **_way_** beyond 100 seconds by taking the full course on Udemy, [**_Do
 
 ## Steps to bootstrap a new Windows
 
-Windows should target the same **terminal-first workflow** as macOS:
-**WezTerm + tmux + Neovim**, with fish as the shell inside that stack.
-Prefer that path over day-to-day PowerShell or `cmd`, and treat WSL as optional,
-not the default.
+Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **MSYS2** (WSL optional).
 
-1. Install the base tools:
-   - [Git for Windows](https://git-scm.com/download/win 'Download Git for Windows')
-   - [WezTerm](https://wezfurlong.org/wezterm/)
-   - a Unix-like userland on Windows that can run `tmux`, `fish`, and `nvim`
-     natively. **MSYS2** is the preferred starting point.
+1. Install the base tools (PowerShell). Enable **Developer Mode** first (Settings → System → For developers) so symlinks work without admin.
 
-2. Clone the repo into a hidden home directory checkout from Git Bash or your
-   Unix-like Windows shell.
-
-```bash
-# Use SSH (if set up)...
-git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
-
-# ...or use HTTPS and switch remotes later.
-git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
+```powershell
+winget install Git.Git wez.wezterm MSYS2.MSYS2 DEVCOM.JetBrainsMonoNerdFont
 ```
 
-1. Symlink the configs you want to manage from this repo.
+2. Open **MSYS2 MSYS** (Start menu), then update and install packages. Run `pacman -Syu` twice (the first run may close the window). Point MSYS2's `~` at your Windows home and restart the shell.
 
 ```bash
+pacman -Syu
+sed -i 's/^#\?db_home:.*/db_home: windows/' /etc/nsswitch.conf
+pacman -S --needed tmux fish git curl \
+  mingw-w64-ucrt-x86_64-neovim mingw-w64-ucrt-x86_64-ripgrep mingw-w64-ucrt-x86_64-fzf
+```
+
+3. Clone the repo into `~/.dotfiles` (the leading dot matters, and the symlinks below depend on it).
+
+```bash
+git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
+git config --global core.autocrlf input
+```
+
+4. Symlink the configs from Git Bash. Without the `MSYS` variable, `ln -s` makes copies.
+
+```bash
+export MSYS=winsymlinks:nativestrict
+mkdir -p ~/.config
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.wezterm.lua ~/.wezterm.lua
 ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
@@ -44,39 +48,28 @@ ln -s ~/.dotfiles/nvim ~/.config/nvim
 ln -s ~/.dotfiles/fish ~/.config/fish
 ```
 
-> If Windows blocks symlink creation, enable Developer Mode so non-admin
-> symlinks work more reliably.
+5. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher and the plugins listed in `fish_plugins`.
 
-1. Install the terminal workflow packages from your Windows Unix layer. With
-   MSYS2, that means using `pacman` to install at least `tmux`, `neovim`,
-   `fish`, `git`, `curl`, `ripgrep`, and `fzf`.
-
-```bash
-pacman -S --needed tmux neovim fish git curl ripgrep fzf
+```fish
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+fisher update
 ```
 
-1. Install OMF (Oh My Fish) if you want the same fish plugin workflow.
+6. Install [TPM](https://github.com/tmux-plugins/tpm) and the tmux plugins.
 
-```bash
-curl -L https://get.oh-my.fish | fish
-```
-
-1. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and
-   bootstrap the tmux plugins.
-
-```bash
+```fish
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
 ```
 
-1. Launch `nvim` once to let LazyVim install plugins and language tooling.
+7. Launch `nvim` once to let LazyVim install plugins and tooling.
 
-```bash
-nvim
-```
+**Windows notes**
 
-The goal on Windows is still the same as on macOS: open **WezTerm**, attach to
-**tmux**, and work from there.
+- `.wezterm.lua` and `.tmux.conf` contain Windows-only blocks (`wezterm.target_triple` / `uname -o | grep -qi msys`), so the same files work on macOS.
+- tmux needs `default-command fish` on MSYS2, or panes stay blank.
+- Syntax errors on valid lines in a config usually mean CRLF line endings. Fix with `sed -i 's/\r$//' <file>` and keep `core.autocrlf input`.
+- If `get.oh-my.fish` times out or OMF's installer fails on MSYS2, skip it. Fisher replaces it here.
 
 ## Steps to bootstrap a new Mac
 
