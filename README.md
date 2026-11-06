@@ -12,7 +12,7 @@ Then, go **_way_** beyond 100 seconds by taking the full course on Udemy, [**_Do
 
 ## Steps to bootstrap a new Windows
 
-Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **MSYS2** (WSL optional).
+Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **MSYS2** (WSL is only a fallback).
 
 1. Install the base tools (PowerShell). Enable **Developer Mode** first (Settings → System → For developers) so symlinks work without admin.
 
@@ -25,18 +25,19 @@ winget install Git.Git wez.wezterm MSYS2.MSYS2 DEVCOM.JetBrainsMonoNerdFont
 ```bash
 pacman -Syu
 sed -i 's/^#\?db_home:.*/db_home: windows/' /etc/nsswitch.conf
-pacman -S --needed tmux fish git curl \
-  mingw-w64-ucrt-x86_64-neovim mingw-w64-ucrt-x86_64-ripgrep mingw-w64-ucrt-x86_64-fzf
+pacman -S --needed tmux fish git curl unzip make \
+  mingw-w64-ucrt-x86_64-neovim mingw-w64-ucrt-x86_64-gcc \
+  mingw-w64-ucrt-x86_64-ripgrep mingw-w64-ucrt-x86_64-fd mingw-w64-ucrt-x86_64-fzf \
+  mingw-w64-ucrt-x86_64-bat mingw-w64-ucrt-x86_64-lazygit mingw-w64-ucrt-x86_64-github-cli
 ```
 
 3. Clone the repo into `~/.dotfiles` (the leading dot matters, and the symlinks below depend on it).
 
 ```bash
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
-git config --global core.autocrlf input
 ```
 
-4. Symlink the configs from Git Bash. Without the `MSYS` variable, `ln -s` makes copies.
+4. Symlink the configs from Git Bash. Without the `MSYS` variable, `ln -s` makes copies. Neovim is a native Windows program, so its config goes in `%LOCALAPPDATA%\nvim`, not `~/.config/nvim`.
 
 ```bash
 export MSYS=winsymlinks:nativestrict
@@ -44,15 +45,18 @@ mkdir -p ~/.config
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.wezterm.lua ~/.wezterm.lua
 ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
-ln -s ~/.dotfiles/nvim ~/.config/nvim
+ln -s ~/.dotfiles/nvim "$LOCALAPPDATA/nvim"
 ln -s ~/.dotfiles/fish ~/.config/fish
 ```
 
-5. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher and the plugins listed in `fish_plugins`.
+5. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
 ```fish
 curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
 fisher update
+nvm install lts
+set -U nvm_default_version lts
+gh auth login
 ```
 
 6. Install [TPM](https://github.com/tmux-plugins/tpm) and the tmux plugins.
@@ -68,8 +72,13 @@ tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/ins
 
 - `.wezterm.lua` and `.tmux.conf` contain Windows-only blocks (`wezterm.target_triple` / `uname -o | grep -qi msys`), so the same files work on macOS.
 - tmux needs `default-command fish` on MSYS2, or panes stay blank.
-- Syntax errors on valid lines in a config usually mean CRLF line endings. Fix with `sed -i 's/\r$//' <file>` and keep `core.autocrlf input`.
-- If `get.oh-my.fish` times out or OMF's installer fails on MSYS2, skip it. Fisher replaces it here.
+- Syntax errors on valid lines in a config usually mean CRLF line endings. Fix with `sed -i 's/\r$//' <file>`; `.gitattributes` and `core.autocrlf input` in `.gitconfig` keep the repo on LF.
+- MSYS2's `ps` has no `-o`, so `.tmux.conf` overrides vim-tmux-navigator's key detection there. tmux-resurrect restores sessions, layouts, and directories, but don't rely on it to relaunch programs such as `nvim`.
+- `nvim/lua/config/options.lua` uses bash for background commands, because `cmd.exe` flags break `:!` and `system()`. `:terminal` and `space ft` still open fish.
+- MSYS2 hides most of the Windows PATH. `fish/config.fish` adds only what this stack needs (WinGet links, WezTerm).
+- `gh` is on MSYS2's PATH only, so GitHub operations from Git for Windows in PowerShell won't find the credential helper in `.gitconfig`.
+- Copilot is Mac-only: `nvim/lua/config/lazy.lua` skips its extras on Windows. A lockfile saved on Windows therefore drops `CopilotChat.nvim`, and the Mac reinstalls it at its latest commit.
+- TypeScript, ESLint, and format-on-save are installed but not yet tried on a real project on Windows.
 
 ## Steps to bootstrap a new Mac
 
@@ -88,10 +97,6 @@ xcode-select --install
 2. Clone the repo into a hidden home-directory checkout.
 
 ```bash
-# Use SSH (if set up)...
-git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
-
-# ...or use HTTPS and switch remotes later.
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
@@ -121,40 +126,33 @@ ln -s ~/.dotfiles/fish ~/.config/fish
 
 > Before symlinking, back up any existing local files instead of overwriting them blindly.
 
-5. Install any terminal-workflow packages that are not already covered by the `Brewfile`.
-
-```bash
-brew install neovim tmux wezterm ripgrep fd fzf lazygit bat fish nvm
-brew install --cask font-jetbrains-mono-nerd-font
-```
-
-6. Make fish the default shell.
+5. Make fish the default shell.
 
 ```bash
 which fish
 chsh -s "$(which fish)"
 ```
 
-7. Install OMF (Oh My Fish) and fish-side NVM integration if you want the same plugin workflow used elsewhere in this repo.
+6. In fish, install Fisher, the plugins listed in `fish_plugins`, and Node, then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
-```bash
-curl -L https://get.oh-my.fish | fish
-
-# This plugin allows Fish to work with NVM
-omf install nvm
-
-# Sets the NVM directory
-set -gx NVM_DIR (brew --prefix nvm)
+```fish
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+fisher update
+nvm install lts
+set -U nvm_default_version lts
+gh auth login
 ```
 
-8. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
+> **Already set up on this Mac?** Fisher-managed files are no longer tracked, so a `git pull` removes them. Run the commands above once afterward to reinstall them.
+
+7. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
 
 ```bash
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
 ```
 
-9. Launch `nvim` once to let LazyVim / `lazy.nvim` install plugins, LSP servers, and formatters.
+8. Launch `nvim` once to let LazyVim / `lazy.nvim` install plugins, LSP servers, and formatters.
 
 ```bash
 nvim
@@ -162,7 +160,7 @@ nvim
 
 Then run `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth.
 
- 10. Restore local-only secrets manually. Do **not** put them in tracked files.
+9. Restore local-only secrets manually. Do **not** put them in tracked files.
 
 Recreate these locally as needed:
 
@@ -171,7 +169,7 @@ Recreate these locally as needed:
 - any machine-specific SSH, npm, GitHub, or cloud credentials
 - fish universal variables / `fish_variables`
 
- 11. Validate the setup.
+10. Validate the setup.
 
 ```bash
 git --version
@@ -214,8 +212,9 @@ during a gradual migration. fish stays the shell in every layer.
 
 A few workflow-specific notes that are still worth calling out here:
 
-- **Copilot in Neovim:** after the first `nvim` launch, run
+- **Copilot in Neovim (Mac only):** after the first `nvim` launch, run
   `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth.
+  Windows skips the Copilot extras.
 - **Secrets stay local:** keep tokens/keys out of tracked shell files. Recreate
   `~/.config/fish/secrets.fish`, `~/.secrets.env`, and any fish universal vars
   locally on each machine.
