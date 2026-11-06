@@ -9,23 +9,28 @@ end
 # use the same trust store as the rest of macOS.
 set -x NODE_OPTIONS --use-system-ca
 
-function code
-  set location "$PWD/$argv"
-  open -n -b "com.microsoft.VSCode" --args $location
-end
-
-
 # Secrets (ARTIFACTORY_TOKEN, etc.) live in an untracked, gitignored file so they
 # never end up committed to the dotfiles repo.
 if test -f ~/.config/fish/secrets.fish
     source ~/.config/fish/secrets.fish
 end
-alias ag='open -a "Antigravity"'
-
 
 # bun
 set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
-# Created by `pipx` on 2026-06-11 16:51:42
-set PATH $PATH /Users/victor/.local/bin
+if set -q MSYSTEM
+    # MSYS2 hides most of the Windows PATH. Append only what this stack needs, so
+    # MSYS2's own tools still take priority.
+    fish_add_path --global --append "$HOME/AppData/Local/Microsoft/WinGet/Links" "/c/Program Files/WezTerm"
+else if test (uname) = Darwin
+    function code
+        set location "$PWD/$argv"
+        open -n -b "com.microsoft.VSCode" --args $location
+    end
+
+    alias ag='open -a "Antigravity"'
+
+    # Created by `pipx` on 2026-06-11 16:51:42
+    set PATH $PATH /Users/victor/.local/bin
+end

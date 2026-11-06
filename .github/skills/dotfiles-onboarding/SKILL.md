@@ -59,14 +59,6 @@ Use this as the standard flow.
 
 ### 1) Install Git and clone the repo
 
-SSH if available:
-
-```bash
-git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
-```
-
-HTTPS fallback:
-
 ```bash
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
@@ -88,6 +80,9 @@ ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
 ln -s ~/.dotfiles/nvim ~/.config/nvim
 ln -s ~/.dotfiles/fish ~/.config/fish
 ```
+
+On Windows, Neovim is a native program, so link `"$LOCALAPPDATA/nvim"` instead of
+`~/.config/nvim`.
 
 Before creating links, check whether the destination already exists. If it does,
 back it up first instead of overwriting blindly.
@@ -176,15 +171,6 @@ Or:
 cd ~/.dotfiles && brew bundle
 ```
 
-### Terminal workflow packages
-
-If they are not already covered by the Brewfile, install:
-
-```bash
-brew install neovim tmux wezterm ripgrep fd fzf lazygit bat fish
-brew install --cask font-jetbrains-mono-nerd-font
-```
-
 ### Make fish the default shell
 
 Use the actual installed fish path rather than assuming `/usr/local/bin/fish`:
@@ -196,12 +182,14 @@ chsh -s "$(which fish)"
 
 ### Fish plugins
 
-Install Oh My Fish:
+In fish, install Fisher, the plugins in `fish_plugins`, and Node, then log in to GitHub:
 
-```bash
-curl -L https://get.oh-my.fish | fish
-omf install nvm
-set -gx NVM_DIR (brew --prefix nvm)
+```fish
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+fisher update
+nvm install lts
+set -U nvm_default_version lts
+gh auth login
 ```
 
 ### Final macOS-specific checks
@@ -266,13 +254,7 @@ If `chsh` rejects the shell, ensure the fish path is listed in `/etc/shells`.
 
 ### Fish plugins
 
-Install Oh My Fish if desired:
-
-```bash
-curl -L https://get.oh-my.fish | fish
-```
-
-If `nvm` integration is needed, adapt the fish plugin setup to the Linux install location rather than assuming Homebrew paths.
+Use the same Fisher, Node, and `gh auth login` commands as the macOS path. Install `gh` with the distro's package manager first.
 
 ### Final Linux-specific checks
 
@@ -311,14 +293,18 @@ Recommend this stack first:
 4. Clone this repo into the home directory as `~/.dotfiles` from Git Bash or the MSYS2 shell.
 5. Symlink `.gitconfig`, `.wezterm.lua`, `.tmux.conf`, `nvim/`, and `fish/` into place.
 6. Install `tmux`, `fish`, `neovim`, and supporting CLI tools in MSYS2.
-7. Install TPM and bootstrap Neovim plugins.
+7. Install Fisher, Node (`nvm.fish`), and log in with `gh auth login`. Mason needs Node.
+8. Install TPM and bootstrap Neovim plugins.
+
+The README's Windows section has the exact package list and commands. Copilot is
+Mac-only, so Windows skips its extras.
 
 ### Repo placement
 
 Prefer:
 
 ```bash
-git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
+git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
 ### Symlink notes
@@ -359,7 +345,7 @@ When using this skill, the agent should:
 4. Warn before replacing existing dotfiles.
 5. Keep secrets out of tracked files.
 6. Call out when an instruction is macOS-specific and offer the Linux/Windows analogue.
-7. Prefer WSL over native Windows for the full terminal stack.
+7. Prefer the native MSYS2 path on Windows; use WSL only on request or as a fallback.
 
 ## Good outcomes
 

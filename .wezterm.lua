@@ -18,7 +18,13 @@ config.term = "wezterm"
 config.enable_kitty_graphics = true
 
 -- Launch fish as the default shell inside WezTerm
-config.default_prog = { "/opt/homebrew/bin/fish", "-l" }
+if wezterm.target_triple:find('windows') then
+  config.default_prog = {
+    'C:\\msys64\\msys2_shell.cmd', '-defterm', '-here', '-no-start', '-ucrt64', '-shell', 'fish'
+  }
+elseif wezterm.target_triple:find('darwin') then
+  config.default_prog = { "/opt/homebrew/bin/fish", "-l" }
+end
 
 -- Enable WezTerm's native shell integration escape sequences (fish supports this
 -- out of the box) for things like "jump to previous prompt" and reporting the

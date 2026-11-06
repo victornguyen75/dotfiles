@@ -8,19 +8,19 @@ project-by-project migration. fish stays the shell throughout.
 1. Merge the PR that introduced these configs (or pull `main` after it's merged) —
    your live machine already has everything symlinked, but this repo is the source
    of truth going forward for any new machine.
-2. Set **WezTerm** as your default terminal app (Spotlight → set as default, or
-   just launch it manually and pin it to the Dock).
-3. Open WezTerm → it launches straight into fish. Run `nvim` once — plugins are
-   already installed, but run `:LspCopilotSignIn` to authenticate Copilot
+2. Launch **WezTerm** and pin it to your Dock (macOS) or taskbar (Windows).
+3. Open WezTerm → it launches straight into fish. Run `nvim` once to finish
+   installing plugins. On macOS, also run `:LspCopilotSignIn` to authenticate Copilot
    (one-time GitHub device-flow login, same subscription as VSCode's Copilot Chat).
+   Copilot is Mac-only; Windows skips it.
 
 ## 2. The three layers — muscle memory map
 
-| Layer | Key concept | Your prefix |
-|---|---|---|
-| tmux | splits/sessions | `Ctrl-a` (custom — default is `Ctrl-b`) |
-| Neovim | normal mode commands | `<leader>` = `space` (LazyVim default) |
-| WezTerm | mostly invisible — just the window | rarely used directly |
+| Layer   | Key concept                        | Your prefix                             |
+| ------- | ---------------------------------- | --------------------------------------- |
+| tmux    | splits/sessions                    | `Ctrl-a` (custom — default is `Ctrl-b`) |
+| Neovim  | normal mode commands               | `<leader>` = `space` (LazyVim default)  |
+| WezTerm | mostly invisible — just the window | rarely used directly                    |
 
 ## 3. Daily entry point: the `tm` function
 
@@ -44,7 +44,9 @@ new/different session. This is your "open project" replacement for VSCode's
 - `Ctrl-a d` → detach (session keeps running in the background)
 - `tm <name>` again later → reattach to that session
 - `Ctrl-a r` → reload tmux config after editing `.tmux.conf`
-- Sessions **survive reboots** (tmux-continuum auto-saves/restores every session)
+- Sessions, layouts, and directories **come back after a restart** (tmux-continuum
+  auto-saves and restores them). Old scrollback doesn't, and on Windows don't rely
+  on it to relaunch programs such as `nvim`
 
 ## 5. Neovim / LazyVim essentials (leader = space)
 
@@ -66,17 +68,19 @@ new/different session. This is your "open project" replacement for VSCode's
 - `space ca` → code actions
 - `space cr` → rename symbol
 - Format-on-save is already on (mirrors the VSCode Prettier setup)
-- `space aa` → toggle Copilot Chat
-- `space aq` → quick one-off Copilot prompt
-- `Alt-]` / `Alt-[` → cycle inline Copilot suggestions
+- `space ft` → open a terminal in the project root (fish)
+- `space aa` → toggle Copilot Chat (macOS only)
+- `space aq` → quick one-off Copilot prompt (macOS only)
+- `Alt-]` / `Alt-[` → cycle inline Copilot suggestions (macOS only)
 - `:Lazy` → plugin manager UI
 - `:Mason` → LSP/formatter installer UI
 - `space gg` → open lazygit (full git UI, no CLI memorization needed)
 
 ## 6. Clipboard — just works
 
-Yank (`y`) in nvim, paste in tmux or any macOS app with Cmd+V, and vice versa.
-Verified working end-to-end (nvim inside tmux ↔ macOS system clipboard).
+Yank (`y`) in nvim and paste in tmux or any other app with Cmd+V (macOS) or
+Ctrl+Shift+V (Windows), and vice versa. Verified working end-to-end on both (nvim inside
+tmux ↔ system clipboard).
 
 ## 7. How to actually migrate (gradual/parallel approach)
 
@@ -90,9 +94,11 @@ to more projects.
 
 - `.wezterm.lua` — WezTerm config (theme, font, shell)
 - `.tmux.conf` — tmux config (keybinds, plugins, clipboard, true color)
-- `nvim/` — LazyVim config (`lua/plugins/extras.lua` = language servers/formatters,
-  `lua/plugins/ai.lua` = Copilot, `lua/plugins/theme.lua` = Catppuccin + file
-  explorer)
-- `fish/` — shell config, including the `tm` helper (`fish/functions/tm.fish`)
+- `nvim/` — LazyVim config (`lua/config/lazy.lua` = language and Copilot extras,
+  `lua/plugins/theme.lua` = Catppuccin, `lua/plugins/tmux-navigator.lua` = pane
+  navigation)
+- `fish/` — shell config, including the `tm` helper (`fish/functions/tm.fish`) and
+  the prompt (`fish/functions/fish_prompt.fish`). Fisher installs everything listed
+  in `fish/fish_plugins`
 - Secrets (`secrets.fish`, `.secrets.env`, `fish_variables`) are intentionally
-  **not** in this repo — see the README's "Secrets" section.
+  **not** in this repo — see the "restore local-only secrets" step in the README.
