@@ -15,7 +15,11 @@ if vim.env.MSYSTEM then
     if vim.fn.getcmdtype() == ":" then
       local cmdline = vim.fn.getcmdline()
       if cmdline == "terminal" or cmdline == "term" then
-        return "<C-u>" .. cmdline .. " fish<CR>"
+        -- <C-u> only deletes from the cursor to the start of the line, so if the
+        -- cursor isn't at the end (e.g. the user pressed <Left> before <CR>), any
+        -- trailing text would survive and corrupt the rewritten command. Move to
+        -- the end first with <C-e> so <C-u> always clears the whole line.
+        return "<C-e><C-u>" .. cmdline .. " fish<CR>"
       end
     end
     return "<CR>"
