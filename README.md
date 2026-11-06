@@ -20,7 +20,7 @@ Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **MSYS2** 
 winget install Git.Git wez.wezterm MSYS2.MSYS2 DEVCOM.JetBrainsMonoNerdFont
 ```
 
-2. Open **MSYS2 MSYS** (Start menu), then update and install packages. Run `pacman -Syu` twice (the first run may close the window). Point MSYS2's `~` at your Windows home and restart the shell.
+1. Open **MSYS2 MSYS** (Start menu), then update and install packages. Run `pacman -Syu` twice (the first run may close the window). Point MSYS2's `~` at your Windows home and restart the shell.
 
 ```bash
 pacman -Syu
@@ -31,13 +31,13 @@ pacman -S --needed tmux fish git curl unzip make \
   mingw-w64-ucrt-x86_64-bat mingw-w64-ucrt-x86_64-lazygit mingw-w64-ucrt-x86_64-github-cli
 ```
 
-3. Clone the repo into `~/.dotfiles` (the leading dot matters, and the symlinks below depend on it).
+1. Clone the repo into `~/.dotfiles` (the leading dot matters, and the symlinks below depend on it).
 
 ```bash
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
-4. Symlink the configs from Git Bash. Without the `MSYS` variable, `ln -s` makes copies. Neovim is a native Windows program, so its config goes in `%LOCALAPPDATA%\nvim`, not `~/.config/nvim`.
+1. Symlink the configs from Git Bash. Without the `MSYS` variable, `ln -s` makes copies. Neovim is a native Windows program, so its config goes in `%LOCALAPPDATA%\nvim`, not `~/.config/nvim`.
 
 ```bash
 export MSYS=winsymlinks:nativestrict
@@ -49,7 +49,7 @@ ln -s ~/.dotfiles/nvim "$LOCALAPPDATA/nvim"
 ln -s ~/.dotfiles/fish ~/.config/fish
 ```
 
-5. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
+1. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
 ```fish
 curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
@@ -59,14 +59,14 @@ set -U nvm_default_version lts
 gh auth login
 ```
 
-6. Install [TPM](https://github.com/tmux-plugins/tpm) and the tmux plugins.
+1. Install [TPM](https://github.com/tmux-plugins/tpm) and the tmux plugins.
 
 ```fish
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
 ```
 
-7. Launch `nvim` once to let LazyVim install plugins and tooling.
+1. Launch `nvim` once to let LazyVim install plugins and tooling.
 
 **Windows notes**
 
@@ -94,13 +94,13 @@ bootstrap path and [`WORKFLOW.md`](./WORKFLOW.md) as the day-to-day usage guide.
 xcode-select --install
 ```
 
-2. Clone the repo into a hidden home-directory checkout.
+1. Clone the repo into a hidden home-directory checkout.
 
 ```bash
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
-3. Install Homebrew, then use the repo's `Brewfile` as the default package source.
+1. Install Homebrew, then use the repo's `Brewfile` as the default package source.
 
 ```bash
 # Install Homebrew
@@ -113,7 +113,7 @@ brew bundle --file ~/.dotfiles/Brewfile
 cd ~/.dotfiles && brew bundle
 ```
 
-4. Symlink the repo-managed config into `$HOME` and `~/.config`.
+1. Symlink the repo-managed config into `$HOME` and `~/.config`.
 
 ```bash
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
@@ -126,14 +126,14 @@ ln -s ~/.dotfiles/fish ~/.config/fish
 
 > Before symlinking, back up any existing local files instead of overwriting them blindly.
 
-5. Make fish the default shell.
+1. Make fish the default shell.
 
 ```bash
 which fish
 chsh -s "$(which fish)"
 ```
 
-6. In fish, install Fisher, the plugins listed in `fish_plugins`, and Node, then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
+1. In fish, install Fisher, the plugins listed in `fish_plugins`, and Node, then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
 ```fish
 curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
@@ -144,15 +144,21 @@ gh auth login
 ```
 
 > **Already set up on this Mac?** Fisher-managed files are no longer tracked, so a `git pull` removes them. Run the commands above once afterward to reinstall them.
+>
+> **Heads up:** Fisher can delete files it doesn't manage if it has stale bookkeeping from
+> a plugin you've since removed from `fish_plugins` (it happened to `fish_prompt.fish`
+> here, left over from `oh-my-fish/theme-robbyrussell`). After `fisher update`/`fisher
+> install`, run `git status` in this repo and `git checkout -- <path>` to restore
+> anything unexpectedly deleted.
 
-7. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
+1. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
 
 ```bash
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
 ```
 
-8. Launch `nvim` once to let LazyVim / `lazy.nvim` install plugins, LSP servers, and formatters.
+1. Launch `nvim` once to let LazyVim / `lazy.nvim` install plugins, LSP servers, and formatters.
 
 ```bash
 nvim
@@ -160,7 +166,7 @@ nvim
 
 Then run `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth.
 
-9. Restore local-only secrets manually. Do **not** put them in tracked files.
+1. Restore local-only secrets manually. Do **not** put them in tracked files.
 
 Recreate these locally as needed:
 
@@ -169,7 +175,7 @@ Recreate these locally as needed:
 - any machine-specific SSH, npm, GitHub, or cloud credentials
 - fish universal variables / `fish_variables`
 
-10. Validate the setup.
+ 1. Validate the setup.
 
 ```bash
 git --version
