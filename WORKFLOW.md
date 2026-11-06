@@ -16,11 +16,11 @@ project-by-project migration. fish stays the shell throughout.
 
 ## 2. The three layers — muscle memory map
 
-| Layer | Key concept | Your prefix |
-|---|---|---|
-| tmux | splits/sessions | `Ctrl-a` (custom — default is `Ctrl-b`) |
-| Neovim | normal mode commands | `<leader>` = `space` (LazyVim default) |
-| WezTerm | mostly invisible — just the window | rarely used directly |
+| Layer   | Key concept                        | Your prefix                             |
+| ------- | ---------------------------------- | --------------------------------------- |
+| tmux    | splits/sessions                    | `Ctrl-a` (custom — default is `Ctrl-b`) |
+| Neovim  | normal mode commands               | `<leader>` = `space` (LazyVim default)  |
+| WezTerm | mostly invisible — just the window | rarely used directly                    |
 
 ## 3. Daily entry point: the `tm` function
 
@@ -79,7 +79,7 @@ new/different session. This is your "open project" replacement for VSCode's
 ## 6. Clipboard — just works
 
 Yank (`y`) in nvim and paste in tmux or any other app with Cmd+V (macOS) or
-Ctrl+V (Windows), and vice versa. Verified working end-to-end on both (nvim inside
+Ctrl+Shift+V (Windows), and vice versa. Verified working end-to-end on both (nvim inside
 tmux ↔ system clipboard).
 
 ## 7. How to actually migrate (gradual/parallel approach)
