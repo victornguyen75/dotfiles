@@ -4,7 +4,21 @@
 
 -- MSYS2: make a bare `:terminal` open fish; `vim.o.shell` stays bash for background
 -- commands (see config/options.lua). `:terminal <cmd>` still runs <cmd> as given.
+--
+-- A plain `cnoreabbrev` would also fire on the space after "terminal"/"term", before
+-- any arguments are typed, so `:terminal npm test` would still get rewritten to
+-- `:terminal fish npm test` (fish then tries to run "npm" as a script). Instead,
+-- rewrite only on <CR>, and only when the command line is the bare word with no
+-- arguments, so commands with arguments are left untouched.
 if vim.env.MSYSTEM then
-  vim.cmd([[cnoreabbrev <expr> terminal getcmdtype() ==# ':' && getcmdline() ==# 'terminal' ? 'terminal fish' : 'terminal']])
-  vim.cmd([[cnoreabbrev <expr> term getcmdtype() ==# ':' && getcmdline() ==# 'term' ? 'terminal fish' : 'term']])
+  local function fish_terminal_cr()
+    if vim.fn.getcmdtype() == ":" then
+      local cmdline = vim.fn.getcmdline()
+      if cmdline == "terminal" or cmdline == "term" then
+        return "<C-u>" .. cmdline .. " fish<CR>"
+      end
+    end
+    return "<CR>"
+  end
+  vim.keymap.set("c", "<CR>", fish_terminal_cr, { expr = true })
 end
