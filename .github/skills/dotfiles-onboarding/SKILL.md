@@ -185,7 +185,7 @@ chsh -s "$(which fish)"
 In fish, install Fisher, the plugins in `fish_plugins`, and Node, then log in to GitHub:
 
 ```fish
-curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
 fisher update
 nvm install lts
 set -U nvm_default_version lts

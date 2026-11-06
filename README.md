@@ -52,7 +52,7 @@ ln -s ~/.dotfiles/fish ~/.config/fish
 1. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
 ```fish
-curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
 fisher update
 nvm install lts
 set -U nvm_default_version lts
@@ -136,7 +136,7 @@ chsh -s "$(which fish)"
 1. In fish, install Fisher, the plugins listed in `fish_plugins`, and Node, then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
 ```fish
-curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
 fisher update
 nvm install lts
 set -U nvm_default_version lts
