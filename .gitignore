@@ -5,8 +5,11 @@
 fish/fish_variables
 fish/secrets.fish
 
-# Fish plugins from fisher
-fish/functions/
+# Fish plugins from fisher (own functions are re-included explicitly; this must
+# be `functions/*`, because git can't re-include files under an ignored directory)
+fish/functions/*
+!fish/functions/tm.fish
+!fish/functions/fish_prompt.fish
 fish/completions/
 fish/conf.d/
 
