@@ -1,4 +1,4 @@
-# For MacOS users only
+# macOS and Linux/WSL (Homebrew on Linux). Casks are macOS-only.
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
 # Modern replacement for 'ls'
@@ -23,9 +23,11 @@ brew "ripgrep"
 brew "tmux"
 # UNIX shell (command interpreter)
 brew "zsh"
-cask "alfred"
-cask "dropbox"
-cask "font-jetbrains-mono-nerd-font"
-cask "google-chrome"
-cask "visual-studio-code"
-cask "wezterm"
+if OS.mac?
+  cask "alfred"
+  cask "dropbox"
+  cask "font-jetbrains-mono-nerd-font"
+  cask "google-chrome"
+  cask "visual-studio-code"
+  cask "wezterm"
+end

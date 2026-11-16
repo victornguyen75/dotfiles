@@ -23,6 +23,9 @@ if set -q MSYSTEM
     # MSYS2 hides most of the Windows PATH. Append only what this stack needs, so
     # MSYS2's own tools still take priority.
     fish_add_path --global --append "$HOME/AppData/Local/Microsoft/WinGet/Links" "/c/Program Files/WezTerm"
+else if test -x /home/linuxbrew/.linuxbrew/bin/brew
+    # Linux/WSL: Homebrew on Linux provides fish, tmux, nvim, and the CLIs.
+    /home/linuxbrew/.linuxbrew/bin/brew shellenv | source
 else if test (uname) = Darwin
     function code
         set location "$PWD/$argv"
