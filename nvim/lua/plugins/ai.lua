@@ -8,7 +8,7 @@
 -- per LazyVim's import-order check), so nothing to add here currently.
 --
 -- CopilotChat.nvim is pinned here (not via lazy-lock.json) because the extra
--- that pulls it in is Mac-only (see config/lazy.lua): Windows never loads this
+-- that pulls it in is Mac-only (see config/lazy.lua): other OSes never load this
 -- spec, so any `Lazy sync` run there drops CopilotChat.nvim from the shared
 -- lockfile. An explicit `commit` in the spec is authoritative over the
 -- lockfile for this plugin, so it stays pinned regardless of which OS last
@@ -16,10 +16,10 @@
 --
 -- `optional = true` matters here: this file is always imported via
 -- `{ import = "plugins" }` (config/lazy.lua), with `defaults.lazy = false` for
--- custom plugins, regardless of the Windows `cond` on the copilot-chat extra.
+-- custom plugins, regardless of the Mac-only `cond` on the copilot-chat extra.
 -- Without `optional`, this fragment would stand alone as its own plugin spec on
--- Windows and eagerly install/load CopilotChat.nvim there too, defeating the
--- Windows exclusion. With `optional = true`, it only merges into (and pins) the
+-- other OSes and eagerly install/load CopilotChat.nvim there too, defeating the
+-- Mac-only gate. With `optional = true`, it only merges into (and pins) the
 -- plugin when the Mac-only extra has already declared it.
 return {
   {
