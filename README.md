@@ -12,7 +12,48 @@ Then, go **_way_** beyond 100 seconds by taking the full course on Udemy, [**_Do
 
 ## Steps to bootstrap a new Windows
 
-Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **MSYS2** (WSL is only a fallback).
+Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **WSL (Ubuntu)**.
+WezTerm runs on Windows; everything else is Linux, installed with Homebrew from the
+same `Brewfile` as the Mac.
+
+> **Why not MSYS2?** Native `nvim.exe` inside MSYS2's tmux runs behind a second
+> ConPTY layer. That layer re-renders the screen (leftover borders, duplicated
+> status lines) and splits mouse escape sequences, so stray `M` characters get
+> typed into buffers and prompts. WSL has no ConPTY between tmux and nvim.
+> MSYS2 is kept below as a fallback.
+
+1. Install WezTerm and the font (PowerShell), then WSL with Ubuntu (admin PowerShell; reboot when asked).
+
+```powershell
+winget install wez.wezterm DEVCOM.JetBrainsMonoNerdFont
+wsl --install -d Ubuntu
+```
+
+1. After the reboot, open **Ubuntu** from the Start menu, create your Linux user, then clone the repo into the Linux home. Keep it there, not under `/mnt/c`: that's slow from WSL and invites CRLF problems. It is a separate clone from the Windows one, so sync with `git push`/`git pull`.
+
+```bash
+git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
+```
+
+1. Run the bootstrap script. It installs apt prerequisites, Homebrew on Linux, the `Brewfile` (casks are skipped), symlinks `.gitconfig`, `.tmux.conf`, `nvim/`, and `fish/`, makes fish the login shell, and installs TPM, the tmux plugins, Fisher plugins, and Node LTS.
+
+```bash
+~/.dotfiles/scripts/bootstrap-wsl.sh
+```
+
+1. Finish the manual steps the script prints: check `git status` (see the Fisher caution in the Mac section), `gh auth login`, launch `nvim` once, and restore local secrets.
+
+1. Close and reopen WezTerm. `.wezterm.lua` (still symlinked on the Windows side) opens `WSL:Ubuntu` in `~` whenever that distro exists. `Ctrl+Alt+L` opens a launcher with the MSYS2 fallback.
+
+**WSL notes**
+
+- Clipboard: WSL has no X11/Wayland clipboard, so `nvim/lua/config/options.lua` uses `clip.exe` and PowerShell's `Get-Clipboard` (`:h clipboard-wsl`).
+- Copilot stays Mac-only: `nvim/lua/config/lazy.lua` gates it on `has("mac")`, because `has("win32")` is 0 inside WSL.
+- Windows drives are under `/mnt/c`. Keep projects in the Linux home for speed.
+
+### Fallback: native MSYS2
+
+Use this only if WSL isn't available. Expect the rendering problems described above; `.tmux.conf`, `options.lua`, and `autocmds.lua` carry MSYS2-only mitigations (longer `escape-time`, no CSI-u keys, nvim mouse off, forced redraws).
 
 1. Install the base tools (PowerShell). Enable **Developer Mode** first (Settings → System → For developers) so symlinks work without admin.
 
@@ -49,7 +90,7 @@ ln -s ~/.dotfiles/nvim "$LOCALAPPDATA/nvim"
 ln -s ~/.dotfiles/fish ~/.config/fish
 ```
 
-1. Open WezTerm. `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
+1. Open WezTerm. Without a `WSL:Ubuntu` distro, `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
 ```fish
 curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
@@ -68,7 +109,7 @@ tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/ins
 
 1. Launch `nvim` once to let LazyVim install plugins and tooling.
 
-**Windows notes**
+**MSYS2 notes**
 
 - `.wezterm.lua` and `.tmux.conf` contain Windows-only blocks (`wezterm.target_triple` / `uname -o | grep -qi msys`), so the same files work on macOS.
 - tmux needs `default-command fish` on MSYS2, or panes stay blank.
@@ -77,7 +118,7 @@ tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/ins
 - `nvim/lua/config/options.lua` uses bash for background commands, because `cmd.exe` flags break `:!` and `system()`. `:terminal` and `space ft` still open fish.
 - MSYS2 hides most of the Windows PATH. `fish/config.fish` adds only what this stack needs (WinGet links, WezTerm).
 - `gh` is on MSYS2's PATH only, so GitHub operations from Git for Windows in PowerShell won't find the credential helper in `.gitconfig`.
-- Copilot is Mac-only: `nvim/lua/config/lazy.lua` skips its extras on Windows. A lockfile saved on Windows therefore drops `CopilotChat.nvim`, and the Mac reinstalls it at its latest commit.
+- Copilot is Mac-only: `nvim/lua/config/lazy.lua` skips its extras on Windows and WSL. `nvim/lua/plugins/ai.lua` pins `CopilotChat.nvim`, so a lockfile saved elsewhere doesn't change its version on the Mac.
 - TypeScript, ESLint, and format-on-save are installed but not yet tried on a real project on Windows.
 
 ## Steps to bootstrap a new Mac
@@ -235,7 +276,7 @@ A few workflow-specific notes that are still worth calling out here:
 
 ## TODO List for Windows Configurations
 
-- Learn how to install scripts and bootstrapping tools for windows
+- Verify `scripts/bootstrap-wsl.sh` end to end on a fresh Ubuntu distro.
 
 ## TODO List for MacOS Configurations
 

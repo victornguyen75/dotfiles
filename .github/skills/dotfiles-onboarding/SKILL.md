@@ -22,11 +22,11 @@ Use this decision tree before giving commands:
 
 - **macOS** → use the native path. This repo already documents macOS clearly.
 - **Linux** → use the native path, but adapt package installation to the distro.
-- **Windows** → prefer a **native Windows terminal stack built around WezTerm + tmux + Neovim**.
-  - Prefer WezTerm as the terminal.
-  - Prefer tmux as the session/workspace layer.
-  - Prefer a Unix-like Windows userland that can run `tmux`, `fish`, and `nvim` natively; **MSYS2** is the default recommendation.
-  - Do **not** default to WSL, PowerShell, or `cmd` for the primary workflow unless the user explicitly asks for them or native setup is blocked.
+- **Windows** → **WezTerm on Windows + WSL (Ubuntu)** running fish, tmux, and Neovim.
+  - Prefer WezTerm as the terminal; `.wezterm.lua` opens `WSL:Ubuntu` when it exists.
+  - Inside WSL, follow the Linux path with Homebrew on Linux and `scripts/bootstrap-wsl.sh`.
+  - **MSYS2** is a fallback only: native `nvim.exe` under MSYS2 tmux sits behind a second ConPTY, which garbles rendering and leaks mouse escape sequences as typed text.
+  - Do **not** center PowerShell or `cmd` in the workflow.
 
 If the user says only “Linux,” ask which distro before giving package-manager-specific commands.
 
@@ -265,68 +265,40 @@ Use the same Fisher, Node, and `gh auth login` commands as the macOS path. Insta
 
 ## Windows path
 
-For Windows, guide users toward a **native WezTerm + tmux workflow first**.
-WSL is a fallback or alternative, not the default recommendation.
-
-## Preferred Windows path: WezTerm + tmux + native Unix-like userland
-
-### Why this is preferred
-
-It keeps the day-to-day experience aligned with the rest of this repo:
-WezTerm as the terminal, tmux as the persistent workspace layer, fish as the
-shell, and Neovim as the editor.
-
-### Default recommendation
-
-Recommend this stack first:
-
-1. **WezTerm** as the terminal emulator.
-2. **MSYS2** as the native Unix-like userland on Windows.
-3. **tmux**, **fish**, and **Neovim** installed inside that environment.
-4. Repo-managed config symlinked into the Windows home directory and config directories.
+Use **WezTerm on Windows** as the terminal and **WSL (Ubuntu)** for everything
+else. This keeps the stack identical to macOS/Linux (fish, tmux, Linux Neovim,
+Homebrew + `Brewfile`) and avoids ConPTY sitting between tmux and Neovim.
 
 ### Flow
 
-1. Install **Git for Windows**.
-2. Install **WezTerm**.
-3. Install **MSYS2**.
-4. Clone this repo into the home directory as `~/.dotfiles` from Git Bash or the MSYS2 shell.
-5. Symlink `.gitconfig`, `.wezterm.lua`, `.tmux.conf`, `nvim/`, and `fish/` into place.
-6. Install `tmux`, `fish`, `neovim`, and supporting CLI tools in MSYS2.
-7. Install Fisher, Node (`nvm.fish`), and log in with `gh auth login`. Mason needs Node.
-8. Install TPM and bootstrap Neovim plugins.
+1. In PowerShell: `winget install wez.wezterm DEVCOM.JetBrainsMonoNerdFont`.
+2. In admin PowerShell: `wsl --install -d Ubuntu`, then reboot.
+3. In Ubuntu: clone this repo to `~/.dotfiles` (Linux home, **not** `/mnt/c`).
+4. Run `~/.dotfiles/scripts/bootstrap-wsl.sh` (apt prerequisites, Homebrew on
+   Linux, `brew bundle`, symlinks, fish as login shell, TPM, Fisher, Node LTS).
+5. Finish manually: check `git status` after Fisher, `gh auth login`, run `nvim`
+   once, restore secrets.
+6. Symlink `.wezterm.lua` into the Windows home (from the Windows clone) so
+   WezTerm opens `WSL:Ubuntu` by default.
 
-The README's Windows section has the exact package list and commands. Copilot is
-Mac-only, so Windows skips its extras.
+Copilot is Mac-only (`has("mac")`), so WSL skips its extras.
 
-### Repo placement
+### Notes
 
-Prefer:
+- The WSL clone and any Windows clone are separate checkouts; sync with git.
+- Neovim in WSL uses `clip.exe` / `Get-Clipboard` for the system clipboard.
+- Keep projects in the Linux filesystem for speed.
 
-```bash
-git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
-```
+## Fallback Windows path: native MSYS2
 
-### Symlink notes
+Use only when WSL is unavailable. The README's "Fallback: native MSYS2" section
+has the exact package list and commands. Warn the user that native `nvim.exe`
+inside MSYS2 tmux runs behind a second ConPTY, which causes redraw artifacts and
+stray `M` characters from split mouse sequences; the repo carries MSYS2-only
+mitigations, not a fix.
 
 - Windows symlink creation may require Developer Mode or elevated privileges.
 - Do not assume `ln -s` behaves identically across Git Bash, MSYS2, and other shells.
-- If symlink creation is blocked, explain the constraint and use the smallest temporary workaround, but keep symlinks as the preferred end state.
-
-### Command style guidance
-
-- Prefer commands that run from Git Bash or the MSYS2 shell.
-- Do **not** center PowerShell or `cmd` in the workflow unless the user explicitly asks for them.
-- Treat WSL as optional only when native Windows tooling cannot satisfy the requested workflow.
-
-## Alternate Windows path: WSL on request or as fallback
-
-Use WSL only when:
-
-- the user explicitly wants it, or
-- native Windows tooling cannot provide a workable `tmux` + `fish` + `nvim` setup.
-
-In that case, follow the **Linux path** inside WSL and optionally keep WezTerm on Windows as the terminal frontend.
 
 ## What to read before giving detailed help
 
@@ -345,7 +317,7 @@ When using this skill, the agent should:
 4. Warn before replacing existing dotfiles.
 5. Keep secrets out of tracked files.
 6. Call out when an instruction is macOS-specific and offer the Linux/Windows analogue.
-7. Prefer the native MSYS2 path on Windows; use WSL only on request or as a fallback.
+7. Prefer WSL on Windows; use the MSYS2 path only as a fallback.
 
 ## Good outcomes
 

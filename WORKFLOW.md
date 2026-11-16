@@ -45,8 +45,8 @@ new/different session. This is your "open project" replacement for VSCode's
 - `tm <name>` again later → reattach to that session
 - `Ctrl-a r` → reload tmux config after editing `.tmux.conf`
 - Sessions, layouts, and directories **come back after a restart** (tmux-continuum
-  auto-saves and restores them). Old scrollback doesn't, and on Windows don't rely
-  on it to relaunch programs such as `nvim`
+  auto-saves and restores them). Old scrollback doesn't, and on the MSYS2 fallback
+  don't rely on it to relaunch programs such as `nvim`
 
 ## 5. Neovim / LazyVim essentials (leader = space)
 
@@ -80,7 +80,8 @@ new/different session. This is your "open project" replacement for VSCode's
 
 Yank (`y`) in nvim and paste in tmux or any other app with Cmd+V (macOS) or
 Ctrl+Shift+V (Windows), and vice versa. Verified working end-to-end on both (nvim inside
-tmux ↔ system clipboard).
+tmux ↔ system clipboard) on macOS and MSYS2; on WSL, nvim uses `clip.exe` and
+PowerShell `Get-Clipboard` (not yet verified there).
 
 ## 7. How to actually migrate (gradual/parallel approach)
 
