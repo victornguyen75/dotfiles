@@ -10,4 +10,8 @@ if vim.fn.has("win32") == 1 and vim.env.MSYSTEM then
   vim.o.shellcmdflag = "-c"
   vim.o.shellquote = ""
   vim.o.shellxquote = ""
+
+  -- Mouse reports reach nvim.exe through tmux and a second ConPTY, which splits
+  -- them: nvim sees a bare <Esc> and then the trailing "M" as typed text.
+  vim.o.mouse = ""
 end
