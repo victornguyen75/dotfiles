@@ -26,6 +26,9 @@ if set -q MSYSTEM
 else if test -x /home/linuxbrew/.linuxbrew/bin/brew
     # Linux/WSL: Homebrew on Linux provides fish, tmux, nvim, and the CLIs.
     /home/linuxbrew/.linuxbrew/bin/brew shellenv | source
+    # Native installers (e.g. Claude Code) drop binaries here. --global keeps it
+    # out of the universal fish_user_paths, since this runs on every startup.
+    fish_add_path --global ~/.local/bin
 else if test (uname) = Darwin
     function code
         set location "$PWD/$argv"
