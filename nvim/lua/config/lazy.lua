@@ -20,12 +20,15 @@ require("lazy").setup({
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     -- import any LazyVim extras (must come after lazyvim.plugins and before
     -- your own plugins, per LazyVim's import-order check)
-    { import = "lazyvim.plugins.extras.ai.copilot-native" },
-    { import = "lazyvim.plugins.extras.ai.copilot-chat" },
+    -- Copilot is licensed only on the Mac (enterprise account), so skip it elsewhere
+    -- (Windows, including WSL, where has("win32") is 0).
+    { import = "lazyvim.plugins.extras.ai.copilot-native", cond = vim.fn.has("mac") == 1 },
+    { import = "lazyvim.plugins.extras.ai.copilot-chat", cond = vim.fn.has("mac") == 1 },
     { import = "lazyvim.plugins.extras.lang.typescript" },
     { import = "lazyvim.plugins.extras.lang.json" },
     { import = "lazyvim.plugins.extras.lang.yaml" },
     { import = "lazyvim.plugins.extras.lang.docker" },
+    { import = "lazyvim.plugins.extras.lang.markdown" },
     { import = "lazyvim.plugins.extras.formatting.prettier" },
     { import = "lazyvim.plugins.extras.linting.eslint" },
     { import = "lazyvim.plugins.extras.editor.snacks_explorer" },

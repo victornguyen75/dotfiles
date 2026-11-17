@@ -1,6 +1,14 @@
 [user]
   email = 22437776+victornguyen75@users.noreply.github.com
   name = Nguyen, Victor
+[core]
+  editor = nvim
+  autocrlf = input
+# Use gh for GitHub HTTPS auth. The empty helper clears any inherited helper
+# for github.com. gh must be on PATH (this form avoids a machine-specific path).
+[credential "https://github.com"]
+  helper =
+  helper = !gh auth git-credential
 [alias]
   fe = fetch
   co = checkout

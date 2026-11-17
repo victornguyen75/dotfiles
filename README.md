@@ -12,71 +12,115 @@ Then, go **_way_** beyond 100 seconds by taking the full course on Udemy, [**_Do
 
 ## Steps to bootstrap a new Windows
 
-Windows should target the same **terminal-first workflow** as macOS:
-**WezTerm + tmux + Neovim**, with fish as the shell inside that stack.
-Prefer that path over day-to-day PowerShell or `cmd`, and treat WSL as optional,
-not the default.
+Same workflow as macOS: **WezTerm + tmux + Neovim**, with fish inside **WSL (Ubuntu)**.
+WezTerm runs on Windows; everything else is Linux, installed with Homebrew from the
+same `Brewfile` as the Mac.
 
-1. Install the base tools:
-   - [Git for Windows](https://git-scm.com/download/win 'Download Git for Windows')
-   - [WezTerm](https://wezfurlong.org/wezterm/)
-   - a Unix-like userland on Windows that can run `tmux`, `fish`, and `nvim`
-     natively. **MSYS2** is the preferred starting point.
+> **Why not MSYS2?** Native `nvim.exe` inside MSYS2's tmux runs behind a second
+> ConPTY layer. That layer re-renders the screen (leftover borders, duplicated
+> status lines) and splits mouse escape sequences, so stray `M` characters get
+> typed into buffers and prompts. WSL has no ConPTY between tmux and nvim.
+> MSYS2 is kept below as a fallback.
 
-2. Clone the repo into a hidden home directory checkout from Git Bash or your
-   Unix-like Windows shell.
+1. Install WezTerm and the font (PowerShell), then WSL with Ubuntu (admin PowerShell; reboot when asked).
+
+```powershell
+winget install wez.wezterm DEVCOM.JetBrainsMonoNerdFont
+wsl --install -d Ubuntu
+```
+
+1. After the reboot, open **Ubuntu** from the Start menu, create your Linux user, then clone the repo into the Linux home. Keep it there, not under `/mnt/c`: that's slow from WSL and invites CRLF problems. It is a separate clone from the Windows one, so sync with `git push`/`git pull`.
 
 ```bash
-# Use SSH (if set up)...
-git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
-
-# ...or use HTTPS and switch remotes later.
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
-1. Symlink the configs you want to manage from this repo.
+1. Run the bootstrap script. It installs apt prerequisites, Homebrew on Linux, the `Brewfile` (casks are skipped), symlinks `.gitconfig`, `.tmux.conf`, `nvim/`, and `fish/`, makes fish the login shell, and installs TPM, the tmux plugins, Fisher plugins, Node LTS, and Claude Code.
 
 ```bash
+~/.dotfiles/scripts/bootstrap-wsl.sh
+```
+
+1. Finish the manual steps the script prints: check `git status` (see the Fisher caution in the Mac section), `gh auth login`, launch `nvim` once, sign in to `claude` once, and restore local secrets.
+
+1. Close and reopen WezTerm. `.wezterm.lua` (still symlinked on the Windows side) opens `WSL:Ubuntu` in `~` whenever that distro exists. `Ctrl+Alt+L` opens a launcher with the MSYS2 fallback.
+
+**WSL notes**
+
+- Clipboard: WSL has no X11/Wayland clipboard, so `nvim/lua/config/options.lua` uses `clip.exe` and PowerShell's `Get-Clipboard` (`:h clipboard-wsl`).
+- Copilot stays Mac-only: `nvim/lua/config/lazy.lua` gates it on `has("mac")`, because `has("win32")` is 0 inside WSL.
+- Claude Code: WSL needs its own Linux install (`~/.local/bin/claude`, added to `PATH` in `fish/config.fish`). A Windows install isn't found as `claude` in WSL: only `claude.exe` is on the inherited Windows `PATH`.
+- Windows drives are under `/mnt/c`. Keep projects in the Linux home for speed.
+
+### Fallback: native MSYS2
+
+Use this only if WSL isn't available. Expect the rendering problems described above; `.tmux.conf`, `options.lua`, and `autocmds.lua` carry MSYS2-only mitigations (longer `escape-time`, no CSI-u keys, nvim mouse off, forced redraws).
+
+1. Install the base tools (PowerShell). Enable **Developer Mode** first (Settings → System → For developers) so symlinks work without admin.
+
+```powershell
+winget install Git.Git wez.wezterm MSYS2.MSYS2 DEVCOM.JetBrainsMonoNerdFont
+```
+
+1. Open **MSYS2 MSYS** (Start menu), then update and install packages. Run `pacman -Syu` twice (the first run may close the window). Point MSYS2's `~` at your Windows home and restart the shell.
+
+```bash
+pacman -Syu
+sed -i 's/^#\?db_home:.*/db_home: windows/' /etc/nsswitch.conf
+pacman -S --needed tmux fish git curl unzip make \
+  mingw-w64-ucrt-x86_64-neovim mingw-w64-ucrt-x86_64-gcc \
+  mingw-w64-ucrt-x86_64-ripgrep mingw-w64-ucrt-x86_64-fd mingw-w64-ucrt-x86_64-fzf \
+  mingw-w64-ucrt-x86_64-bat mingw-w64-ucrt-x86_64-lazygit mingw-w64-ucrt-x86_64-github-cli
+```
+
+1. Clone the repo into `~/.dotfiles` (the leading dot matters, and the symlinks below depend on it).
+
+```bash
+git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
+```
+
+1. Symlink the configs from Git Bash. Without the `MSYS` variable, `ln -s` makes copies. Neovim is a native Windows program, so its config goes in `%LOCALAPPDATA%\nvim`, not `~/.config/nvim`.
+
+```bash
+export MSYS=winsymlinks:nativestrict
+mkdir -p ~/.config
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.wezterm.lua ~/.wezterm.lua
 ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
-ln -s ~/.dotfiles/nvim ~/.config/nvim
+ln -s ~/.dotfiles/nvim "$LOCALAPPDATA/nvim"
 ln -s ~/.dotfiles/fish ~/.config/fish
 ```
 
-> If Windows blocks symlink creation, enable Developer Mode so non-admin
-> symlinks work more reliably.
+1. Open WezTerm. Without a `WSL:Ubuntu` distro, `.wezterm.lua` launches fish in MSYS2 (UCRT64) automatically. Then install Fisher, the plugins listed in `fish_plugins`, and Node. Mason needs Node to install most language servers. Then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
-1. Install the terminal workflow packages from your Windows Unix layer. With
-   MSYS2, that means using `pacman` to install at least `tmux`, `neovim`,
-   `fish`, `git`, `curl`, `ripgrep`, and `fzf`.
-
-```bash
-pacman -S --needed tmux neovim fish git curl ripgrep fzf
+```fish
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+fisher update
+nvm install lts
+set -U nvm_default_version lts
+gh auth login
 ```
 
-1. Install OMF (Oh My Fish) if you want the same fish plugin workflow.
+1. Install [TPM](https://github.com/tmux-plugins/tpm) and the tmux plugins.
 
-```bash
-curl -L https://get.oh-my.fish | fish
-```
-
-1. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and
-   bootstrap the tmux plugins.
-
-```bash
+```fish
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux new-session -d -s plugins-install \; run-shell '~/.tmux/plugins/tpm/bin/install_plugins' \; kill-session -t plugins-install
 ```
 
-1. Launch `nvim` once to let LazyVim install plugins and language tooling.
+1. Launch `nvim` once to let LazyVim install plugins and tooling.
 
-```bash
-nvim
-```
+**MSYS2 notes**
 
-The goal on Windows is still the same as on macOS: open **WezTerm**, attach to
-**tmux**, and work from there.
+- `.wezterm.lua` and `.tmux.conf` contain Windows-only blocks (`wezterm.target_triple` / `uname -o | grep -qi msys`), so the same files work on macOS.
+- tmux needs `default-command fish` on MSYS2, or panes stay blank.
+- Syntax errors on valid lines in a config usually mean CRLF line endings. Fix with `sed -i 's/\r$//' <file>`; `.gitattributes` and `core.autocrlf input` in `.gitconfig` keep the repo on LF.
+- MSYS2's `ps` has no `-o`, so `.tmux.conf` overrides vim-tmux-navigator's key detection there. tmux-resurrect restores sessions, layouts, and directories, but don't rely on it to relaunch programs such as `nvim`.
+- `nvim/lua/config/options.lua` uses bash for background commands, because `cmd.exe` flags break `:!` and `system()`. `:terminal` and `space ft` still open fish.
+- MSYS2 hides most of the Windows PATH. `fish/config.fish` adds only what this stack needs (WinGet links, WezTerm).
+- `gh` is on MSYS2's PATH only, so GitHub operations from Git for Windows in PowerShell won't find the credential helper in `.gitconfig`.
+- Copilot is Mac-only: `nvim/lua/config/lazy.lua` skips its extras on Windows and WSL. `nvim/lua/plugins/ai.lua` pins `CopilotChat.nvim`, so a lockfile saved elsewhere doesn't change its version on the Mac.
+- TypeScript, ESLint, and format-on-save are installed but not yet tried on a real project on Windows.
 
 ## Steps to bootstrap a new Mac
 
@@ -95,10 +139,6 @@ xcode-select --install
 1. Clone the repo into a hidden home-directory checkout.
 
 ```bash
-# Use SSH (if set up)...
-git clone git@github.com:eieioxyz/Beyond-Dotfiles-in-100-Seconds.git ~/.dotfiles
-
-# ...or use HTTPS and switch remotes later.
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
@@ -128,13 +168,6 @@ ln -s ~/.dotfiles/fish ~/.config/fish
 
 > Before symlinking, back up any existing local files instead of overwriting them blindly.
 
-1. Install any terminal-workflow packages that are not already covered by the `Brewfile`.
-
-```bash
-brew install neovim tmux wezterm ripgrep fd fzf lazygit bat fish nvm
-brew install --cask font-jetbrains-mono-nerd-font
-```
-
 1. Make fish the default shell.
 
 ```bash
@@ -142,17 +175,23 @@ which fish
 chsh -s "$(which fish)"
 ```
 
-1. Install OMF (Oh My Fish) and fish-side NVM integration if you want the same plugin workflow used elsewhere in this repo.
+1. In fish, install Fisher, the plugins listed in `fish_plugins`, and Node, then log in to GitHub, which `.gitconfig` uses for HTTPS auth.
 
-```bash
-curl -L https://get.oh-my.fish | fish
-
-# This plugin allows Fish to work with NVM
-omf install nvm
-
-# Sets the NVM directory
-set -gx NVM_DIR (brew --prefix nvm)
+```fish
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+fisher update
+nvm install lts
+set -U nvm_default_version lts
+gh auth login
 ```
+
+> **Already set up on this Mac?** Fisher-managed files are no longer tracked, so a `git pull` removes them. Run the commands above once afterward to reinstall them.
+>
+> **Heads up:** Fisher can delete files it doesn't manage if it has stale bookkeeping from
+> a plugin you've since removed from `fish_plugins` (it happened to `fish_prompt.fish`
+> here, left over from `oh-my-fish/theme-robbyrussell`). After `fisher update`/`fisher
+> install`, run `git status` in this repo and `git checkout -- <path>` to restore
+> anything unexpectedly deleted.
 
 1. Install [TPM](https://github.com/tmux-plugins/tpm) (tmux Plugin Manager) and bootstrap the tmux plugins.
 
@@ -169,7 +208,7 @@ nvim
 
 Then run `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth.
 
- 1. Restore local-only secrets manually. Do **not** put them in tracked files.
+1. Restore local-only secrets manually. Do **not** put them in tracked files.
 
 Recreate these locally as needed:
 
@@ -221,8 +260,9 @@ during a gradual migration. fish stays the shell in every layer.
 
 A few workflow-specific notes that are still worth calling out here:
 
-- **Copilot in Neovim:** after the first `nvim` launch, run
+- **Copilot in Neovim (Mac only):** after the first `nvim` launch, run
   `:LspCopilotSignIn` once to authenticate GitHub Copilot via device-flow OAuth.
+  Windows skips the Copilot extras.
 - **Secrets stay local:** keep tokens/keys out of tracked shell files. Recreate
   `~/.config/fish/secrets.fish`, `~/.secrets.env`, and any fish universal vars
   locally on each machine.
@@ -237,7 +277,7 @@ A few workflow-specific notes that are still worth calling out here:
 
 ## TODO List for Windows Configurations
 
-- Learn how to install scripts and bootstrapping tools for windows
+- Verify `scripts/bootstrap-wsl.sh` end to end on a fresh Ubuntu distro.
 
 ## TODO List for MacOS Configurations
 
