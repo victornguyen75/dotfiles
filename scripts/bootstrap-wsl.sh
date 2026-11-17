@@ -84,12 +84,18 @@ fish -c '
   set -U nvm_default_version lts
 '
 
+step "Claude Code (native Linux build in ~/.local/bin; the Windows claude.exe doesn't run as 'claude' here)"
+if [ ! -x "$HOME/.local/bin/claude" ]; then
+  curl -fsSL https://claude.ai/install.sh | bash
+fi
+
 cat <<EOF
 
 Done. Remaining manual steps:
   1. git -C ~/.dotfiles status   # Fisher can delete files it doesn't manage; restore with git checkout -- <path>
   2. gh auth login               # .gitconfig uses gh for GitHub HTTPS auth
   3. nvim                        # let LazyVim install plugins, LSPs, formatters
-  4. Recreate local secrets (~/.config/fish/secrets.fish, ~/.secrets.env)
-  5. Close and reopen WezTerm: it now starts in WSL:Ubuntu.
+  4. claude                      # sign in to Claude Code once inside WSL
+  5. Recreate local secrets (~/.config/fish/secrets.fish, ~/.secrets.env)
+  6. Close and reopen WezTerm: it now starts in WSL:Ubuntu.
 EOF

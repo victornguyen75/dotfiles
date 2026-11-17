@@ -35,13 +35,13 @@ wsl --install -d Ubuntu
 git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 ```
 
-1. Run the bootstrap script. It installs apt prerequisites, Homebrew on Linux, the `Brewfile` (casks are skipped), symlinks `.gitconfig`, `.tmux.conf`, `nvim/`, and `fish/`, makes fish the login shell, and installs TPM, the tmux plugins, Fisher plugins, and Node LTS.
+1. Run the bootstrap script. It installs apt prerequisites, Homebrew on Linux, the `Brewfile` (casks are skipped), symlinks `.gitconfig`, `.tmux.conf`, `nvim/`, and `fish/`, makes fish the login shell, and installs TPM, the tmux plugins, Fisher plugins, Node LTS, and Claude Code.
 
 ```bash
 ~/.dotfiles/scripts/bootstrap-wsl.sh
 ```
 
-1. Finish the manual steps the script prints: check `git status` (see the Fisher caution in the Mac section), `gh auth login`, launch `nvim` once, and restore local secrets.
+1. Finish the manual steps the script prints: check `git status` (see the Fisher caution in the Mac section), `gh auth login`, launch `nvim` once, sign in to `claude` once, and restore local secrets.
 
 1. Close and reopen WezTerm. `.wezterm.lua` (still symlinked on the Windows side) opens `WSL:Ubuntu` in `~` whenever that distro exists. `Ctrl+Alt+L` opens a launcher with the MSYS2 fallback.
 
@@ -49,6 +49,7 @@ git clone https://github.com/victornguyen75/dotfiles.git ~/.dotfiles
 
 - Clipboard: WSL has no X11/Wayland clipboard, so `nvim/lua/config/options.lua` uses `clip.exe` and PowerShell's `Get-Clipboard` (`:h clipboard-wsl`).
 - Copilot stays Mac-only: `nvim/lua/config/lazy.lua` gates it on `has("mac")`, because `has("win32")` is 0 inside WSL.
+- Claude Code: WSL needs its own Linux install (`~/.local/bin/claude`, added to `PATH` in `fish/config.fish`). A Windows install isn't found as `claude` in WSL: only `claude.exe` is on the inherited Windows `PATH`.
 - Windows drives are under `/mnt/c`. Keep projects in the Linux home for speed.
 
 ### Fallback: native MSYS2

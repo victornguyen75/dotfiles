@@ -275,9 +275,10 @@ Homebrew + `Brewfile`) and avoids ConPTY sitting between tmux and Neovim.
 2. In admin PowerShell: `wsl --install -d Ubuntu`, then reboot.
 3. In Ubuntu: clone this repo to `~/.dotfiles` (Linux home, **not** `/mnt/c`).
 4. Run `~/.dotfiles/scripts/bootstrap-wsl.sh` (apt prerequisites, Homebrew on
-   Linux, `brew bundle`, symlinks, fish as login shell, TPM, Fisher, Node LTS).
+   Linux, `brew bundle`, symlinks, fish as login shell, TPM, Fisher, Node LTS,
+   Claude Code).
 5. Finish manually: check `git status` after Fisher, `gh auth login`, run `nvim`
-   once, restore secrets.
+   once, sign in to `claude` once, restore secrets.
 6. Symlink `.wezterm.lua` into the Windows home (from the Windows clone) so
    WezTerm opens `WSL:Ubuntu` by default.
 
@@ -287,6 +288,8 @@ Copilot is Mac-only (`has("mac")`), so WSL skips its extras.
 
 - The WSL clone and any Windows clone are separate checkouts; sync with git.
 - Neovim in WSL uses `clip.exe` / `Get-Clipboard` for the system clipboard.
+- Claude Code needs a native Linux install in WSL (`~/.local/bin/claude`); the
+  Windows build only appears as `claude.exe` on the inherited `PATH`.
 - Keep projects in the Linux filesystem for speed.
 
 ## Fallback Windows path: native MSYS2
